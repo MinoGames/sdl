@@ -627,6 +627,15 @@ JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativeSetupJNI)(JNIEnv *env, jclass cl
     checkJNIReady();
 }
 
+char* concatString(const char *s1, const char *s2)
+{
+    char *result = malloc(strlen(s1) + strlen(s2) + 1); // +1 for the null-terminator
+    // in real code you would check for errors in malloc here
+    strcpy(result, s1);
+    strcat(result, s2);
+    return result;
+}
+
 /* Audio initialization -- called before SDL_main() to initialize JNI bindings */
 JNIEXPORT void JNICALL SDL_JAVA_AUDIO_INTERFACE(nativeSetupJNI)(JNIEnv *env, jclass cls)
 {
@@ -704,7 +713,23 @@ JNIEXPORT int JNICALL SDL_JAVA_INTERFACE(nativeRunMain)(JNIEnv *env, jclass cls,
     Android_JNI_SetEnv(env);
 
     library_file = (*env)->GetStringUTFChars(env, library, NULL);
-    library_handle = dlopen(library_file, RTLD_GLOBAL);
+
+    // TODO: free concatString
+    library_handle = dlopen(concatString(library_file, "libApplicationMain.so"), RTLD_GLOBAL);
+
+    if (library_handle) {
+
+    } else {
+        __android_log_print(ANDROID_LOG_ERROR, "SDL", "nativeRunMain(1): Couldn't load library %s, %s", dlerror(), library_file);
+        library_handle = dlopen("libApplicationMain.so", RTLD_GLOBAL);
+    }
+
+    if (library_handle) {
+
+    } else {
+        __android_log_print(ANDROID_LOG_ERROR, "SDL", "nativeRunMain(2): Couldn't load library %s, %s", dlerror(), library_file);
+        library_handle = dlopen("ApplicationMain", RTLD_GLOBAL);
+    }
 
     if (!library_handle) {
         /* When deploying android app bundle format uncompressed native libs may not extract from apk to filesystem.
@@ -774,7 +799,7 @@ JNIEXPORT int JNICALL SDL_JAVA_INTERFACE(nativeRunMain)(JNIEnv *env, jclass cls,
         dlclose(library_handle);
 
     } else {
-        __android_log_print(ANDROID_LOG_ERROR, "SDL", "nativeRunMain(): Couldn't load library %s", library_file);
+        __android_log_print(ANDROID_LOG_ERROR, "SDL", "nativeRunMain(): Couldn't load library %s, %s", dlerror(), library_file);
     }
     (*env)->ReleaseStringUTFChars(env, library, library_file);
 

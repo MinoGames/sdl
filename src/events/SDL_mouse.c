@@ -243,14 +243,6 @@ SDL_UpdateMouseFocus(SDL_Window * window, int x, int y, Uint32 buttonstate, SDL_
     SDL_Mouse *mouse = SDL_GetMouse();
     SDL_bool inWindow = SDL_TRUE;
 
-    if (window && ((window->flags & SDL_WINDOW_MOUSE_CAPTURE) == 0)) {
-        int w, h;
-        SDL_GetWindowSize(window, &w, &h);
-        if (x < 0 || y < 0 || x >= w || y >= h) {
-            inWindow = SDL_FALSE;
-        }
-    }
-
 /* Linux doesn't give you mouse events outside your window unless you grab
    the pointer.
 

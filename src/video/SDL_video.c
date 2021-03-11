@@ -4076,14 +4076,14 @@ void SDL_OnApplicationWillResignActive(void)
             SDL_SendWindowEvent(window, SDL_WINDOWEVENT_MINIMIZED, 0, 0);
         }
     }
-    glFinish();
     SDL_SendAppEvent(SDL_APP_WILLENTERBACKGROUND);
+    glFinish();
 }
 
 void SDL_OnApplicationDidEnterBackground(void)
 {
-    glFinish();
     SDL_SendAppEvent(SDL_APP_DIDENTERBACKGROUND);
+    glFinish();
 }
 
 void SDL_OnApplicationWillEnterForeground(void)
